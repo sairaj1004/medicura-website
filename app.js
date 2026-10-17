@@ -49,7 +49,10 @@ const colleges = [
 ];
 
 const directoryColleges = window.MEDICURA_COLLEGE_PROFILES || [];
-function profileForSlug(slug) { return directoryColleges.find((profile) => profile.slug === slug); }
+const abroadDirectoryColleges = (window.MEDICURA_ABROAD_COLLEGE_PROFILES || []).filter((profile) => profile.section === "abroad");
+function profileForSlug(slug) {
+  return directoryColleges.find((profile) => profile.slug === slug) || abroadDirectoryColleges.find((profile) => profile.slug === slug);
+}
 const collegeSlideSize = 10;
 let currentCollegeSlide = 1;
 
@@ -213,7 +216,7 @@ const categoryThreshold = {
 
 };
 
-const sampleMetricNote = '<p class="sample-note">Sample figures and stories for this frontend preview. Replace with MediCura World’s verified information before publishing.</p>';
+const sampleMetricNote = '';
 
 function esc(value) {
 
@@ -579,7 +582,6 @@ function coverageStrip() {
 
         </div>
 
-        <p>Replace these sample figures with current, verified directory data.</p>
 
       </div>
 
@@ -1161,8 +1163,6 @@ function homePage() {
 
       ${coverageStrip()}
 
-      ${metricStrip()}
-
       <section class="section featured-section">
 
         <div class="container featured-panel">
@@ -1197,7 +1197,7 @@ function homePage() {
 
             <div class="featured-emblem">
 
-              <span>MC</span>
+              <span>MEDICURA</span>
 
               <b>MEDICAL EDUCATION</b>
 
@@ -1331,7 +1331,7 @@ function homePage() {
 
               <div class="about-monogram">
 
-                MC<span>WORLD</span>
+                MEDICURA<span>WORLD</span>
 
               </div>
 
@@ -1398,6 +1398,8 @@ function homePage() {
         </div>
 
       </section>
+
+      ${metricStrip()}
 
       ${destinationSection()}
 
@@ -1682,12 +1684,64 @@ function collegePage() {
       </div></section>
     </main>`;
 }
+function abroadCollegePage() {
+  const countries = [...new Set(abroadDirectoryColleges.map((college) => college.country).filter(Boolean))].sort();
+  return `
+    <main>
+      ${pageHero("MBBS ABROAD", "Find an international medical path.", "Explore the collected abroad university profiles, compare countries and open a detailed profile before you ask for guidance.", "Colleges", buttonLink("Ask a counselor", "/contact", "button-outline"))}
+      <section class="section directory-section"><div class="container">
+        <div class="section-heading india-directory-heading"><div><span class="mini-index">MBBS ABROAD · UNIVERSITY DIRECTORY</span><h2>Explore medical<br /><span>universities abroad.</span></h2></div><div class="heading-side"><p>${abroadDirectoryColleges.length} collected abroad profiles are ready to explore. Search by university or city, filter by country, and open a detailed profile before you ask.</p>${buttonLink("Talk to a counselor", "/contact", "button-outline")}</div></div>
+        <div class="filter-panel"><label class="search-field"><span class="sr-only">Search university or city</span><span class="search-icon" aria-hidden="true">⌕</span><input id="abroad-search" type="search" placeholder="Search university or city..." autocomplete="off" /></label><label class="select-field"><span class="sr-only">Filter by country</span><select id="abroad-country"><option value="all">All countries</option>${countries.map((country) => `<option value="${esc(country)}">${esc(country)}</option>`).join("")}</select></label><span class="results-count" id="abroad-count"></span></div>
+        <div class="destination-grid india-college-grid" id="abroad-results"></div>
+        <div class="college-slider-controls" id="abroad-slider-controls" aria-label="Abroad university directory slides"></div>
+        <div class="empty-state" id="abroad-empty" hidden><span>⌕</span><h3>No matching universities</h3><p>Try another search or choose a different country.</p><button class="text-link" id="clear-abroad-filters" type="button">Clear filters ${arrow()}</button></div>
+        <p class="data-caveat">The supplied abroad directory information is clearly marked as unverified. Confirm current university recognition, NMC status, fees, visa, licensing and admission information with official sources before relying on it.</p>
+      </div></section>
+    </main>`;
+}
+function abroadCollegeCard(college) {
+  const index = abroadDirectoryColleges.indexOf(college);
+  const countrySlug = String(college.country || "").toLowerCase().replace(/[^a-z]+/g, "");
+  const knownImages = { russia: "russia.webp", kazakhstan: "kazakhstan.webp", georgia: "georgia.webp", bangladesh: "bangladesh.webp", uzbekistan: "uzbekistan.webp", nepal: "nepal.webp", tajikistan: "tajikistan.webp" };
+  const imagePath = `/assets/destinations/${knownImages[countrySlug] || "russia.webp"}`;
+  const name = college.shortName || college.name;
+  return `<a class="destination-card india-college-card destination-tone-${index % 4}" href="/colleges/${esc(college.slug)}" aria-label="Ask about ${esc(name)}"><img class="destination-photo" src="${imagePath}" alt="${esc(name)} campus" loading="lazy" /><span class="destination-image-shade"></span><span class="destination-code">${String(index + 1).padStart(2, "0")}</span><span class="destination-card-content"><span class="india-college-kicker">${esc(college.type)} · ${esc(college.country)}</span><span class="destination-card-name">${esc(name)}</span><span class="destination-count">${esc(college.city)}, ${esc(college.country)}</span></span><span class="destination-arrow">Ask ${arrow()}</span></a>`;
+}
+function updateAbroadResults() {
+  const grid = document.getElementById("abroad-results");
+  if (!grid) return;
+  const query = (document.getElementById("abroad-search")?.value || "").toLowerCase().trim();
+  const country = document.getElementById("abroad-country")?.value || "all";
+  const filtered = abroadDirectoryColleges.filter((college) => [college.name, college.shortName, college.city, college.country].some((value) => String(value || "").toLowerCase().includes(query)) && (country === "all" || college.country === country));
+  const totalSlides = Math.max(1, Math.ceil(filtered.length / collegeSlideSize));
+  currentCollegeSlide = Math.min(Math.max(currentCollegeSlide, 1), totalSlides);
+  const visible = filtered.slice((currentCollegeSlide - 1) * collegeSlideSize, currentCollegeSlide * collegeSlideSize);
+  grid.innerHTML = visible.map(abroadCollegeCard).join("");
+  const count = document.getElementById("abroad-count");
+  if (count) count.textContent = `${filtered.length} universities · Slide ${currentCollegeSlide} of ${totalSlides}`;
+  const controls = document.getElementById("abroad-slider-controls");
+  if (controls) {
+    controls.innerHTML = `<button class="college-slide-button" type="button" data-abroad-prev ${currentCollegeSlide === 1 ? "disabled" : ""} aria-label="Previous universities">‹ <span>Previous</span></button><div class="college-slide-pages">${Array.from({ length: totalSlides }, (_, i) => `<button class="college-slide-dot ${i + 1 === currentCollegeSlide ? "is-active" : ""}" type="button" data-abroad-slide="${i + 1}" aria-label="Show university slide ${i + 1}">${i + 1}</button>`).join("")}</div><button class="college-slide-button" type="button" data-abroad-next ${currentCollegeSlide === totalSlides ? "disabled" : ""} aria-label="Next universities"><span>Next</span> ›</button>`;
+    controls.querySelector("[data-abroad-prev]")?.addEventListener("click", () => { currentCollegeSlide -= 1; updateAbroadResults(); });
+    controls.querySelector("[data-abroad-next]")?.addEventListener("click", () => { currentCollegeSlide += 1; updateAbroadResults(); });
+    controls.querySelectorAll("[data-abroad-slide]").forEach((button) => button.addEventListener("click", () => { currentCollegeSlide = Number(button.dataset.abroadSlide); updateAbroadResults(); }));
+    controls.hidden = filtered.length === 0;
+  }
+  const empty = document.getElementById("abroad-empty");
+  if (empty) empty.hidden = filtered.length > 0;
+  bindRevealAnimations();
+}
+function bindAbroadControls() {
+  document.getElementById("abroad-search")?.addEventListener("input", () => { currentCollegeSlide = 1; updateAbroadResults(); });
+  document.getElementById("abroad-country")?.addEventListener("change", () => { currentCollegeSlide = 1; updateAbroadResults(); });
+  document.getElementById("clear-abroad-filters")?.addEventListener("click", () => { document.getElementById("abroad-search").value = ""; document.getElementById("abroad-country").value = "all"; currentCollegeSlide = 1; updateAbroadResults(); });
+}
 function collegeProfilePage(profile) {
   const highlights = profile.academicHighlights || [];
   const steps = profile.admissionSteps || [];
   const initials = (profile.shortName || profile.name).split(/\s+/).slice(0, 2).map((word) => word[0]).join("");
   return `
-    <main class="college-profile-page"><section class="college-profile-hero"><div class="container"><div class="breadcrumb"><a href="/colleges/mbbs-india">MBBS colleges</a><span>›</span><span>${esc(profile.shortName || profile.name)}</span></div><div class="college-profile-hero-grid"><div>${eyebrow("COLLEGE PROFILE · REFERENCE EXTRACT")}<h1>${esc(profile.name)}</h1><p class="college-profile-location">${esc(profile.city)}, ${esc(profile.state)} <span>·</span> ${esc(profile.type)}</p><p class="college-profile-intro">${esc(profile.about)}</p><div class="college-profile-actions">${buttonLink("Ask about this college", `/contact?college=${encodeURIComponent(profile.slug)}`)}<a class="button button-outline" href="${esc(profile.sourceUrl)}" target="_blank" rel="noreferrer">View source page ${arrow()}</a></div></div><div class="college-profile-badge"><span>${esc(initials)}</span><small>MBBS<br />PROFILE</small></div></div></div></section>
+    <main class="college-profile-page"><section class="college-profile-hero"><div class="container"><div class="breadcrumb"><a href="${profile.section === "abroad" ? "/colleges/mbbs-abroad" : "/colleges/mbbs-india"}">${profile.section === "abroad" ? "MBBS abroad" : "MBBS colleges"}</a><span>›</span><span>${esc(profile.shortName || profile.name)}</span></div><div class="college-profile-hero-grid"><div>${eyebrow("COLLEGE PROFILE · REFERENCE EXTRACT")}<h1>${esc(profile.name)}</h1><p class="college-profile-location">${esc(profile.city)}, ${esc(profile.country || profile.state)} <span>·</span> ${esc(profile.type)}</p><p class="college-profile-intro">${esc(profile.about)}</p><div class="college-profile-actions">${buttonLink("Ask about this college", `/contact?college=${encodeURIComponent(profile.slug)}`)}<a class="button button-outline" href="${esc(profile.sourceUrl)}" target="_blank" rel="noreferrer">View source page ${arrow()}</a></div></div><div class="college-profile-badge"><span>${esc(initials)}</span><small>MBBS<br />PROFILE</small></div></div></div></section>
     <section class="college-quickfacts"><div class="container college-fact-grid"><div><span>SEATS</span><strong>${esc(profile.seats)}</strong><small>Source-page claim</small></div><div><span>RANKING</span><strong>${esc(profile.ranking)}</strong><small>Method/year not stated</small></div><div><span>ANNUAL TUITION</span><strong>${esc(profile.annualTuition)}</strong><small>Year not stated</small></div><div><span>RECOGNITION</span><strong>${esc(profile.recognition)}</strong><small>Verify officially</small></div></div></section>
     <section class="section college-profile-content"><div class="container college-profile-layout"><div class="college-profile-main">
       <section class="profile-section"><span class="mini-index">01 · AT A GLANCE</span><h2>What to know about<br /><span>${esc(profile.shortName || profile.name)}.</span></h2><p>${esc(profile.about)}</p><div class="highlight-grid">${highlights.map((item) => `<div><span>✓</span><p>${esc(item)}</p></div>`).join("")}</div></section>
@@ -2265,138 +2319,7 @@ function bindPredictor() {
 
 /* ---------- ROUTING ---------- */
 
-function adminLoginPage() {
-  return `
-    <main class="mc-admin-shell">
-      <section class="mc-login-card">
-        <div class="mc-admin-mark">M</div>
-        <p class="mc-admin-eyebrow">MEDICURA WORLD</p>
-        <h1>Admin sign in</h1>
-        <p class="mc-admin-muted">Sign in to manage consultation inquiries.</p>
-        <form id="mc-admin-login-form" class="mc-admin-form">
-          <label for="mc-admin-email">Admin email</label>
-          <input id="mc-admin-email" name="email" type="email" autocomplete="username" required placeholder="admin@example.com" />
-          <label for="mc-admin-password">Password</label>
-          <input id="mc-admin-password" name="password" type="password" autocomplete="current-password" required placeholder="Enter admin password" />
-          <p id="mc-admin-login-error" class="mc-admin-error" role="alert"></p>
-          <button type="submit" class="mc-admin-primary">Sign in</button>
-        </form>
-        <a class="mc-admin-back" href="/">← Back to website</a>
-      </section>
-    </main>`;
-}
-
-function adminDashboardPage() {
-  return `
-    <main class="mc-admin-shell mc-admin-dashboard">
-      <header class="mc-admin-topbar">
-        <div><p class="mc-admin-eyebrow">MEDICURA WORLD / ADMIN</p><h1>Consultation inquiries</h1><p class="mc-admin-muted">Review and manage requests submitted through your website.</p></div>
-        <div class="mc-admin-top-actions"><button id="mc-admin-refresh" class="mc-admin-secondary">↻ Refresh</button><button id="mc-admin-logout" class="mc-admin-secondary">Log out</button></div>
-      </header>
-      <section class="mc-admin-stats">
-        <article><span>Total inquiries</span><strong id="mc-stat-total">—</strong></article>
-        <article><span>New inquiries</span><strong id="mc-stat-new">—</strong></article>
-        <article><span>Contacted</span><strong id="mc-stat-contacted">—</strong></article>
-      </section>
-      <section class="mc-admin-panel">
-        <div class="mc-admin-panel-heading"><div><h2>Submitted requests</h2><p>Live data from your MySQL database</p></div><span id="mc-admin-count" class="mc-admin-count">Loading…</span></div>
-        <div class="mc-admin-tools"><input id="mc-admin-search" type="search" placeholder="Search name, email, phone or message…" /><select id="mc-admin-filter"><option value="All">All statuses</option><option value="New">New</option><option value="Contacted">Contacted</option></select></div>
-        <p id="mc-admin-state" class="mc-admin-state">Loading inquiries…</p>
-        <div id="mc-admin-inquiry-list" class="mc-admin-inquiry-list"></div>
-      </section>
-      <a class="mc-admin-back" href="/">← Back to website</a>
-    </main>`;
-}
-
-function bindAdminLogin() {
-  const form = document.getElementById("mc-admin-login-form");
-  if (!form) return;
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const button = form.querySelector('button[type="submit"]');
-    const errorBox = document.getElementById("mc-admin-login-error");
-    errorBox.textContent = "";
-    button.disabled = true;
-    button.textContent = "Signing in…";
-    try {
-      const response = await fetch("http://localhost:5000/api/admin/login", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email.value.trim(), password: form.password.value })
-      });
-      const data = await response.json();
-      if (!response.ok || !data.success || !data.token) throw new Error(data.message || "Login failed.");
-      sessionStorage.setItem("medicura_admin_token", data.token);
-      window.location.href = "/admin/dashboard";
-    } catch (error) {
-      errorBox.textContent = error.message === "Failed to fetch" ? "Cannot connect to the backend. Make sure it is running on port 5000." : error.message;
-    } finally {
-      button.disabled = false;
-      button.textContent = "Sign in";
-    }
-  });
-}
-
-function bindAdminDashboard() {
-  const list = document.getElementById("mc-admin-inquiry-list");
-  if (!list) return;
-  const token = sessionStorage.getItem("medicura_admin_token");
-  if (!token) { window.location.replace("/admin/login"); return; }
-  const state = document.getElementById("mc-admin-state");
-  const search = document.getElementById("mc-admin-search");
-  const filter = document.getElementById("mc-admin-filter");
-  let inquiries = [];
-  const escHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[ch]));
-  const formatDate = (value) => value ? new Date(value).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "Date unavailable";
-  async function api(path, options = {}) {
-    const response = await fetch(`http://localhost:5000${path}`, { ...options, headers: { Authorization: `Bearer ${token}`, ...(options.headers || {}) } });
-    const data = await response.json().catch(() => ({}));
-    if (response.status === 401 || response.status === 403) { sessionStorage.removeItem("medicura_admin_token"); window.location.replace("/admin/login"); throw new Error("Your session expired. Please sign in again."); }
-    if (!response.ok || !data.success) throw new Error(data.message || "Request failed.");
-    return data;
-  }
-  function renderList() {
-    const term = search.value.trim().toLowerCase();
-    const statusFilter = filter.value;
-    const shown = inquiries.filter((item) => [item.full_name, item.email, item.phone, item.interest, item.message].some((v) => String(v || "").toLowerCase().includes(term)) && (statusFilter === "All" || (item.status || "New") === statusFilter));
-    document.getElementById("mc-admin-count").textContent = `${shown.length} record${shown.length === 1 ? "" : "s"}`;
-    if (!shown.length) { list.innerHTML = ""; state.textContent = inquiries.length ? "No matching inquiries found." : "No inquiries have been submitted yet."; state.hidden = false; return; }
-    state.hidden = true;
-    list.innerHTML = shown.map((item) => `<article class="mc-admin-inquiry"><div class="mc-admin-inquiry-heading"><h3>${escHtml(item.full_name)}</h3><span class="mc-admin-interest">${escHtml(item.interest)}</span><span class="mc-admin-status ${item.status === "Contacted" ? "is-contacted" : "is-new"}">${escHtml(item.status || "New")}</span></div><div class="mc-admin-contact"><span>✉ ${escHtml(item.email)}</span><span>☎ ${escHtml(item.phone || "Not provided")}</span></div><p class="mc-admin-message-label">Message</p><p class="mc-admin-message">${escHtml(item.message)}</p><p class="mc-admin-date">Submitted: ${escHtml(formatDate(item.created_at))}</p><div class="mc-admin-card-actions">${item.status === "Contacted" ? "" : `<button data-action="contact" data-id="${Number(item.id)}" class="mc-admin-contact-btn">Mark contacted</button>`}<button data-action="delete" data-id="${Number(item.id)}" class="mc-admin-delete-btn">Delete</button></div></article>`).join("");
-  }
-  async function load() {
-    state.hidden = false; state.textContent = "Loading inquiries…";
-    try {
-      const data = await api("/api/admin/inquiries");
-      inquiries = data.inquiries || [];
-      document.getElementById("mc-stat-total").textContent = inquiries.length;
-      document.getElementById("mc-stat-new").textContent = inquiries.filter((x) => (x.status || "New") === "New").length;
-      document.getElementById("mc-stat-contacted").textContent = inquiries.filter((x) => x.status === "Contacted").length;
-      renderList();
-    } catch (error) { state.hidden = false; state.textContent = error.message; }
-  }
-  search.addEventListener("input", renderList);
-  filter.addEventListener("change", renderList);
-  document.getElementById("mc-admin-refresh").addEventListener("click", load);
-  document.getElementById("mc-admin-logout").addEventListener("click", () => { sessionStorage.removeItem("medicura_admin_token"); window.location.href = "/admin/login"; });
-  list.addEventListener("click", async (event) => {
-    const button = event.target.closest("button[data-action]"); if (!button) return;
-    const id = Number(button.dataset.id);
-    try {
-      if (button.dataset.action === "delete") {
-        if (!window.confirm("Delete this inquiry permanently?")) return;
-        await api(`/api/admin/inquiries/${id}`, { method: "DELETE" });
-      } else {
-        await api(`/api/admin/inquiries/${id}/contacted`, { method: "PATCH" });
-      }
-      await load();
-    } catch (error) { window.alert(error.message); }
-  });
-  load();
-}
-
 function routeForPath(path) {
-  if (path === "/admin/login") return { html: adminLoginPage(), title: "Admin Login | MediCura World" };
-  if (path === "/admin/dashboard") return { html: adminDashboardPage(), title: "Admin Dashboard | MediCura World" };
 
   if (path === "/") {
 
@@ -2429,16 +2352,11 @@ function routeForPath(path) {
     const profile = profileForSlug(path.slice("/colleges/".length));
     if (profile) return { html: collegeProfilePage(profile), title: `${profile.shortName || profile.name} | MediCura World` };
   }
-  if (path === "/colleges/mbbs-abroad" || path === "/services/mbbs-abroad") {
-
-    return {
-
-      html: servicePage("abroad"),
-
-      title: "MBBS Abroad",
-
-    };
-
+  if (path === "/colleges/mbbs-abroad") {
+    return { html: abroadCollegePage(), title: "MBBS Colleges Abroad" };
+  }
+  if (path === "/services/mbbs-abroad") {
+    return { html: servicePage("abroad"), title: "MBBS Abroad" };
   }
 
   if (path === "/services/mbbs-india") {
@@ -2923,9 +2841,6 @@ function render() {
 
   rootElement.innerHTML = `${header()}${page.html}${footer()}`;
 
-  if (path === "/admin/login") { bindAdminLogin(); return; }
-  if (path === "/admin/dashboard") { bindAdminDashboard(); return; }
-
   bindMenu();
 
   bindSmoothScrolling();
@@ -2936,11 +2851,15 @@ function render() {
 
   bindCollegeControls();
 
+  bindAbroadControls();
+
   bindBlogControls();
 
   bindRevealAnimations();
 
   if (path === "/colleges/mbbs-india") updateCollegeResults();
+
+  if (path === "/colleges/mbbs-abroad") updateAbroadResults();
 
   if (path === "/blog") updateBlogResults();
 

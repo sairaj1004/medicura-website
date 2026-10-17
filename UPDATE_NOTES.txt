@@ -1,0 +1,16 @@
+MediCura World - corrected directory update
+
+Changes:
+- MBBS India continues to use college-profiles.js and the existing searchable/filterable directory.
+- MBBS Abroad continues to use college-profiles-aborad.js and its own country search/filter directory.
+- MD/MS pages (/colleges/md-ms and /services/md-ms) now render the same directory layout, search, state filter, pagination and profile links as MBBS India.
+- MD/MS currently reuses the India institution dataset because no separate MD/MS course/specialty dataset was included. The page labels this limitation instead of inventing specialty or course details.
+- index.html loads both profile scripts before app.js.
+
+Run instructions:
+1. Extract this ZIP.
+2. In the project folder run `npm install` if dependencies are not installed.
+3. Start the server using the project's documented command. If using the included backend, run `cd backend` then `npm install` and `node server.js`, after configuring backend/.env from backend/.env.example.
+4. Open the local URL served by the project. Do not open index.html directly as a file.
+
+Note: backend/.env is intentionally not included because it may contain local secrets/database credentials.

@@ -1667,53 +1667,23 @@ body { overflow-x: hidden; }
 .india-college-grid { transition:opacity .18s ease, transform .18s ease; }
 .india-college-grid.is-changing { opacity:1; transform:translateY(0); }
 @media (max-width:560px) { .college-slider-controls { align-items:stretch; flex-wrap:wrap; gap:12px; padding-inline:0; } .college-slide-button { min-width:calc(50% - 6px); } .college-slide-pages { order:3; width:100%; } .college-slide-dot { width:28px; height:28px; } }
-
-
-/* ---------- ADMIN LOGIN AND INQUIRY DASHBOARD ---------- */
-.mc-admin-shell{min-height:100vh;padding:38px;box-sizing:border-box;background:#f7f4ef;color:#302b2b;font-family:inherit}
-.mc-login-card{width:min(100%,430px);margin:5vh auto;padding:38px;background:#fff;border:1px solid #e9dfd8;border-radius:18px;box-shadow:0 18px 55px #35102012;box-sizing:border-box}
-.mc-admin-mark{display:grid;place-items:center;width:52px;height:52px;border-radius:15px;background:#4b1023;color:#fff;font-size:26px;font-weight:800}
-.mc-admin-eyebrow{margin:17px 0 8px;color:#8b2948;font-size:11px;font-weight:800;letter-spacing:1.8px}
-.mc-login-card h1,.mc-admin-topbar h1{margin:0;color:#4b1023;font-size:clamp(26px,3vw,35px)}
-.mc-admin-muted{color:#77716f;line-height:1.6;font-size:14px}
-.mc-admin-form{display:grid;gap:10px;margin-top:25px}
-.mc-admin-form label{margin-top:7px;font-size:13px;font-weight:700;color:#4b1023}
-.mc-admin-form input,.mc-admin-tools input,.mc-admin-tools select{width:100%;min-width:0;box-sizing:border-box;padding:13px 14px;border:1px solid #ddd3cd;border-radius:9px;background:#fff;color:#302b2b;font:inherit;outline-color:#8b2948}
-.mc-admin-primary{margin-top:10px;padding:14px;border:0;border-radius:9px;background:#4b1023;color:#fff;font-weight:700;cursor:pointer}
-.mc-admin-primary:disabled{opacity:.65;cursor:wait}
-.mc-admin-error{min-height:18px;margin:0;color:#a52a2a;font-size:13px}
-.mc-admin-back{display:inline-block;margin-top:22px;color:#6e3044;text-decoration:none;font-size:13px}
-.mc-admin-dashboard{max-width:1400px;margin:auto}
-.mc-admin-topbar{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:0 auto 28px}
-.mc-admin-topbar .mc-admin-eyebrow{margin-top:0}
-.mc-admin-top-actions{display:flex;gap:10px;flex-wrap:wrap}
-.mc-admin-secondary{padding:11px 15px;border:1px solid #d9ccc5;border-radius:8px;background:#fff;color:#4b1023;font-weight:700;cursor:pointer}
-.mc-admin-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:24px}
-.mc-admin-stats article{padding:22px;background:#fff;border:1px solid #e9dfd8;border-radius:13px}
-.mc-admin-stats span{display:block;color:#77716f;font-size:13px}
-.mc-admin-stats strong{display:block;margin-top:10px;color:#4b1023;font-size:32px}
-.mc-admin-panel{padding:25px;background:#fff;border:1px solid #e9dfd8;border-radius:15px}
-.mc-admin-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:20px}
-.mc-admin-panel-heading h2{margin:0;color:#4b1023;font-size:23px}
-.mc-admin-panel-heading p{margin:7px 0 0;color:#77716f;font-size:13px}
-.mc-admin-count{font-size:13px;font-weight:700;color:#4b1023}
-.mc-admin-tools{display:flex;gap:12px;margin-bottom:18px}
-.mc-admin-tools input{flex:1}
-.mc-admin-tools select{width:auto}
-.mc-admin-state{padding:25px 10px;text-align:center;color:#77716f}
-.mc-admin-inquiry{margin:0 0 16px;padding:22px;border:1px solid #e9dfd8;border-left:4px solid #c6a15a;border-radius:11px;background:#fcfbf9}
-.mc-admin-inquiry-heading{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.mc-admin-inquiry-heading h3{margin:0;color:#302b2b;font-size:19px}
-.mc-admin-interest,.mc-admin-status{display:inline-block;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:700}
-.mc-admin-interest{background:#4b1023;color:#fff}
-.mc-admin-status.is-new{background:#fff0c7;color:#795800}
-.mc-admin-status.is-contacted{background:#dff4e5;color:#176638}
-.mc-admin-contact{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:16px;color:#655f5d;font-size:13px;overflow-wrap:anywhere}
-.mc-admin-message-label{margin:18px 0 6px;color:#4b1023;font-size:12px;font-weight:800}
-.mc-admin-message{margin:0;padding:13px;border:1px solid #eee8e3;border-radius:7px;background:#fff;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
-.mc-admin-date{margin:12px 0;color:#88817e;font-size:12px}
-.mc-admin-card-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
-.mc-admin-card-actions button{padding:10px 13px;border:0;border-radius:7px;font-weight:700;cursor:pointer}
-.mc-admin-contact-btn{background:#267747;color:#fff}
-.mc-admin-delete-btn{background:#fce9e7;color:#a52a2a}
-@media(max-width:700px){.mc-admin-shell{padding:18px}.mc-login-card{padding:26px;margin-top:3vh}.mc-admin-topbar{align-items:flex-start;flex-direction:column}.mc-admin-stats{grid-template-columns:1fr}.mc-admin-panel{padding:15px}.mc-admin-tools{flex-direction:column}.mc-admin-tools select{width:100%}.mc-admin-panel-heading{align-items:flex-start;flex-direction:column}.mc-admin-inquiry{padding:16px}}
+/* Keep the featured medical-education emblem fully contained at every width. */
+.featured-info { min-width: 0; overflow: hidden; }
+.featured-info > div:not(.featured-emblem) { min-width: 0; }
+.featured-emblem { box-sizing: border-box; width: 102px; height: 102px; max-width: 102px; max-height: 102px; flex: 0 0 102px; overflow: hidden; text-align: center; }
+.featured-emblem span,
+.featured-emblem b { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.featured-emblem b { line-height: 1.35; }
+@media (max-width: 560px) {
+  .featured-info { overflow: hidden; }
+  .featured-emblem { width: 76px; height: 76px; max-width: 76px; max-height: 76px; flex-basis: 76px; }
+  .featured-emblem span { font-size: 16px; }
+  .featured-emblem b { max-width: 90%; font-size: 7px; }
+}
+/* MEDICURA wordmark treatment for the featured and About visuals. */
+.featured-emblem span { max-width: 88%; font-size: 13px; letter-spacing: -.04em; white-space: nowrap; }
+.about-monogram { font-size: 39px; letter-spacing: -.06em; white-space: nowrap; }
+@media (max-width: 700px) {
+  .featured-emblem span { font-size: 11px; }
+  .about-monogram { font-size: 30px; }
+}
